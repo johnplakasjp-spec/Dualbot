@@ -1,21 +1,25 @@
 name: smart-bot
 on:
-  schedule:
-    - cron: '0 7,9,11,13,15,17,19,21 * * *'
   workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
+
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - run: pip install requests
       - run: python bot.py
-      - run: |
+      - name: Save balance
+        run: |
           git config user.name "bot"
           git config user.email "bot@bot.com"
-          git add balance.json || true
-          git commit -m "update" || true
-          git push || true
+          git add balance.json
+          git commit -m "update balance" || echo "no change"
+          git push
